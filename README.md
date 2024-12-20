@@ -1,7 +1,7 @@
 # Star Rays Generator for Adobe Illustrator
 
 ## Overview
-The Star Rays Generator is a powerful tool for Adobe Illustrator that lets you create stunning "starburst" line effects. With this script, you can generate random lines radiating from the center of selected objects or the document center, making it ideal for designs requiring dynamic, radiant visuals.
+The Star Rays Generator is a tool for Adobe Illustrator that lets you create stunning "starburst" line effects. With this script, you can generate random lines radiating from the center of selected objects or the document center, making it ideal for designs requiring dynamic, radiant visuals.
 
 ## Features
 - Generates random rays with varied colors and lengths.
