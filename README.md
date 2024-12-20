@@ -31,7 +31,7 @@ The Star Rays Generator is a powerful tool for Adobe Illustrator that lets you c
   Rays are drawn centered in the document. A dialog will appear, allowing you to set values for the amount of lines, min and max radius, color settings red (R), green (G), and blue (B), line width, opacity and Blending mode.
 
 ## Requirements
-- Adobe Illustrator CC 2024 or newer.
+- Adobe Illustrator CC 2023 or newer.
 
 ## Contributing
 Feedback and contributions are welcome! If you have ideas for improvements or encounter any issues, feel free to open an issue or submit a pull request.
