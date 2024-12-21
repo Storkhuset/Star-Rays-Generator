@@ -29,7 +29,7 @@
     var linesCount = 50;
     var lineWidth = 1;
     var minMaxRadius = { min: 0, max: 200, maxSliderValue: width / 2 };
-    var colorValue = { r: 0, g: 0, b: 0, maxSliderValue: 255 };
+    var colorValue = { red: 0, green: 0, blue: 0, maxSliderValue: 255 };
     var opacity = { value: "20", maxSliderValue: 100 };
 
     // Blending modes
@@ -120,20 +120,20 @@
             // Color preview panel
             var colorPreviewPanel = colorRangePanel.add("panel", undefined, "Color Preview");
             colorPreviewPanel.preferredSize = [150, 50];
-            updatePreview(colorValue.r, colorValue.g, colorValue.b);
+            updatePreview(colorValue.red, colorValue.green, colorValue.blue);
 
             // RGB sliders and labels
             var rGroup = colorRangePanel.add("group");
             rGroup.add("statictext", undefined, "R:");
-            var rSlider = rGroup.add("slider", undefined, colorValue.r, 0, colorValue.maxSliderValue);
+            var rSlider = rGroup.add("slider", undefined, colorValue.red, 0, colorValue.maxSliderValue);
 
             var gGroup = colorRangePanel.add("group");
             gGroup.add("statictext", undefined, "G:");
-            var gSlider = gGroup.add("slider", undefined, colorValue.g, 0, colorValue.maxSliderValue);
+            var gSlider = gGroup.add("slider", undefined, colorValue.green, 0, colorValue.maxSliderValue);
 
             var bGroup = colorRangePanel.add("group");
             bGroup.add("statictext", undefined, "B:");
-            var bSlider = bGroup.add("slider", undefined, colorValue.b, 0, colorValue.maxSliderValue);
+            var bSlider = bGroup.add("slider", undefined, colorValue.blue, 0, colorValue.maxSliderValue);
         }
 
         // Line width settings
@@ -167,16 +167,16 @@
                 minMaxRadius.max = parseInt(radiusPanel.maxSlider.value);
             };
             rSlider.onChange = function () {
-                colorValue.r = parseInt(rSlider.value);
-                updatePreview(colorValue.r, colorValue.g, colorValue.b);
+                colorValue.red = parseInt(rSlider.value);
+                updatePreview(colorValue.red, colorValue.green, colorValue.blue);
             };
             gSlider.onChange = function () {
-                colorValue.g = parseInt(gSlider.value);
-                updatePreview(colorValue.r, colorValue.g, colorValue.b);
+                colorValue.green = parseInt(gSlider.value);
+                updatePreview(colorValue.red, colorValue.green, colorValue.blue);
             };
             bSlider.onChange = function () {
-                colorValue.b = parseInt(bSlider.value);
-                updatePreview(colorValue.r, colorValue.g, colorValue.b);
+                colorValue.blue = parseInt(bSlider.value);
+                updatePreview(colorValue.red, colorValue.green, colorValue.blue);
             };
         }
         lineWidthPanel.widthText.onChange = function () {
@@ -201,10 +201,10 @@
         };
 
         // Update color preview
-        function updatePreview(r, g, b) {
+        function updatePreview(red, green, blue) {
             colorPreviewPanel.graphics.backgroundColor = colorPreviewPanel.graphics.newBrush(
                 colorPreviewPanel.graphics.BrushType.SOLID_COLOR,
-                [r / 255, g / 255, b / 255, 1] // Normalize RGB to 0-1 range
+                [red / 255, green / 255, blue / 255, 1] // Normalize RGB to 0-1 range
             );
         }
 
@@ -239,14 +239,14 @@
 
             if (selected.stroked && selected.strokeColor.typename !== "NoColor") {
                 var selColor = getRGBFromStrokeColor(selected);
-                colorValue.r = selColor.r;
-                colorValue.g = selColor.g;
-                colorValue.b = selColor.b;
+                colorValue.red = selColor.red;
+                colorValue.green = selColor.green;
+                colorValue.blue = selColor.blue;
             } else {
                 // Assign random light colors if no stroke color is present
-                colorValue.r = Math.random() * 255;
-                colorValue.g = Math.random() * 255;
-                colorValue.b = Math.random() * 255;
+                colorValue.red = Math.random() * 255;
+                colorValue.green = Math.random() * 255;
+                colorValue.blue = Math.random() * 255;
             }
         }
 
@@ -278,15 +278,14 @@
             line.setEntirePath([[centerPoint.x, centerPoint.y], outerPoints[j]]);
             line.stroked = true;
 
-            var hsl = rgbToHsl(colorValue.r, colorValue.g, colorValue.b);
-            hsl.l = Math.random() * 100; // Random lightness
-            var randomizedRgb = hslToRgb(hsl.h, hsl.s, hsl.l);
-
             var color = new RGBColor();
-            color.red = randomizedRgb.r;
-            color.green = randomizedRgb.g;
-            color.blue = randomizedRgb.b;
-            line.strokeColor = color;
+            color.red = colorValue.red;
+            color.green = colorValue.green;
+            color.blue = colorValue.blue;
+
+            // alert(color.blue)
+            var randomizedLightness = whiterShadeOf(color, parseFloat(Math.random().toFixed(1)));
+            line.strokeColor = randomizedLightness;
 
             line.opacity = parseInt(opacity.value, 10);
             line.blendingMode = selectedBlendMode;
@@ -306,108 +305,48 @@
         }
 
         var color = item.strokeColor;
-        var rgb = { r: 0, g: 0, b: 0 };
+        var rgb = { red: 0, green: 0, blue: 0 };
 
         if (color.typename === "RGBColor") {
-            rgb.r = color.red;
-            rgb.g = color.green;
-            rgb.b = color.blue;
+            rgb.red = color.red;
+            rgb.green = color.green;
+            rgb.blue = color.blue;
         } else if (color.typename === "CMYKColor") {
-            rgb.r = 255 * (1 - color.cyan / 100) * (1 - color.black / 100);
-            rgb.g = 255 * (1 - color.magenta / 100) * (1 - color.black / 100);
-            rgb.b = 255 * (1 - color.yellow / 100) * (1 - color.black / 100);
+            rgb.red = 255 * (1 - color.cyan / 100) * (1 - color.black / 100);
+            rgb.green = 255 * (1 - color.magenta / 100) * (1 - color.black / 100);
+            rgb.blue = 255 * (1 - color.yellow / 100) * (1 - color.black / 100);
         } else if (color.typename === "SpotColor") {
             var spotColor = color.spot.color;
             if (spotColor.typename === "RGBColor") {
-                rgb.r = spotColor.red;
-                rgb.g = spotColor.green;
-                rgb.b = spotColor.blue;
+                rgb.red = spotColor.red;
+                rgb.green = spotColor.green;
+                rgb.blue = spotColor.blue;
             } else if (spotColor.typename === "CMYKColor") {
-                rgb.r = 255 * (1 - spotColor.cyan / 100) * (1 - spotColor.black / 100);
-                rgb.g = 255 * (1 - spotColor.magenta / 100) * (1 - spotColor.black / 100);
-                rgb.b = 255 * (1 - spotColor.yellow / 100) * (1 - spotColor.black / 100);
+                rgb.red = 255 * (1 - spotColor.cyan / 100) * (1 - spotColor.black / 100);
+                rgb.green = 255 * (1 - spotColor.magenta / 100) * (1 - spotColor.black / 100);
+                rgb.blue = 255 * (1 - spotColor.yellow / 100) * (1 - spotColor.black / 100);
             }
         } else if (color.typename === "GrayColor") {
             var grayValue = color.gray;
-            rgb.r = rgb.g = rgb.b = 255 * (1 - grayValue / 100);
+            rgb.red = rgb.green = rgb.blue = 255 * (1 - grayValue / 100);
         } else {
             throw new Error("Unsupported color type: " + color.typename);
         }
 
-        rgb.r = Math.round(Math.min(Math.max(rgb.r, 0), 255));
-        rgb.g = Math.round(Math.min(Math.max(rgb.g, 0), 255));
-        rgb.b = Math.round(Math.min(Math.max(rgb.b, 0), 255));
+        rgb.red = Math.round(Math.min(Math.max(rgb.red, 0), 255));
+        rgb.green = Math.round(Math.min(Math.max(rgb.green, 0), 255));
+        rgb.blue = Math.round(Math.min(Math.max(rgb.blue, 0), 255));
 
         return rgb;
     }
 
-    /**
-    * Converts RGB to HSL
-    * @param {number} r - Red (0-255)
-    * @param {number} g - Green (0-255)
-    * @param {number} b - Blue (0-255)
-    * @returns {Object} - { h: number, s: number, l: number }
-    */
-    function rgbToHsl(r, g, b) {
-        r /= 255;
-        g /= 255;
-        b /= 255;
+    function whiterShadeOf(color, mixValue) {
+        var mixedColor = new RGBColor();
+        mixedColor.red = Math.round((color.red * mixValue) + (255 * (1-mixValue)));
+        mixedColor.green = Math.round((color.green * mixValue) + (255 * (1-mixValue)));
+        mixedColor.blue = Math.round((color.blue * mixValue) + (255 * (1-mixValue)));
 
-        var max = Math.max(r, g, b),
-            min = Math.min(r, g, b);
-        var h, s, l = (max + min) / 2;
-
-        if (max === min) {
-            h = s = 0; // achromatic
-        } else {
-            var d = max - min;
-            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-            switch (max) {
-                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                case g: h = (b - r) / d + 2; break;
-                case b: h = (r - g) / d + 4; break;
-            }
-            h /= 6;
-        }
-
-        return { h: h * 360, s: s * 100, l: l * 100 };
-    }
-
-    /**
-    * Converts HSL to RGB
-    * @param {number} h - Hue (0-360)
-    * @param {number} s - Saturation (0-100)
-    * @param {number} l - Lightness (0-100)
-    * @returns {Object} - { r: number, g: number, b: number }
-    */
-    function hslToRgb(h, s, l) {
-        h /= 360;
-        s /= 100;
-        l /= 100;
-
-        var r, g, b;
-
-        if (s === 0) {
-            r = g = b = l; // achromatic
-        } else {
-            var hue2rgb = function (p, q, t) {
-                if (t < 0) t += 1;
-                if (t > 1) t -= 1;
-                if (t < 1 / 6) return p + (q - p) * 6 * t;
-                if (t < 1 / 2) return q;
-                if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-                return p;
-            };
-
-            var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-            var p = 2 * l - q;
-
-            r = hue2rgb(p, q, h + 1 / 3);
-            g = hue2rgb(p, q, h);
-            b = hue2rgb(p, q, h - 1 / 3);
-        }
-
-        return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
+        return mixedColor;
     }
     
     // Start the script
